@@ -9,12 +9,12 @@ namespace OldBackupsAutoDelete
 {
     internal class SearchAndDeleteFiles(Logger logger)
     {        
-        public async Task DeleteHostingerBackups()
+        public static async Task DeleteHostingerBackups()
         {
             try
             {
                 string directoriesBackupPath = Path.Combine("/volume1", "hostingerBackups");
-                DirectoryInfo directoriesBackup = new DirectoryInfo(directoriesBackupPath);
+                DirectoryInfo directoriesBackup = new (directoriesBackupPath);
                 try
                 {
                     var filesToDelete = directoriesBackup.GetFiles("*.*", SearchOption.AllDirectories)
@@ -22,12 +22,12 @@ namespace OldBackupsAutoDelete
                             (f.CreationTime.AddDays(10) < DateTime.Now && f.CreationTime.DayOfWeek is not DayOfWeek.Wednesday)).ToList();
                     Parallel.ForEach(filesToDelete, f =>
                     {
-                        File.Delete(f.FullName);
+                        f.Delete();
                     });
                 }
                 catch (Exception ex)
                 {
-                    await logger.SaveInformationToLog($"DeleteHostingerBackups - Usuwanie plików - {ex.Message}");
+                    await Logger.SaveInformationToLog($"DeleteHostingerBackups - Usuwanie plików - {ex.Message}");
                 }
                 try
                 {
@@ -41,12 +41,12 @@ namespace OldBackupsAutoDelete
                 }
                 catch(Exception ex)
                 {
-                    await logger.SaveInformationToLog($"DeleteHostingerBackups - Usuwanie katalogów - {ex.Message}");
+                    await Logger.SaveInformationToLog($"DeleteHostingerBackups - Usuwanie katalogów - {ex.Message}");
                 }
             }
             catch (Exception ex) 
             {
-                await logger.SaveInformationToLog($"DeleteHostingerBackups - {ex.Message}");
+                await Logger.SaveInformationToLog($"DeleteHostingerBackups - {ex.Message}");
             }
         }
     }

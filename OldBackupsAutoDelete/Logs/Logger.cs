@@ -8,7 +8,7 @@ namespace OldBackupsAutoDelete.Logs
 {
     public class Logger
     {
-        public async Task SaveInformationToLog(string information)
+        public static async Task SaveInformationToLog(string information)
         {
             try
             {
