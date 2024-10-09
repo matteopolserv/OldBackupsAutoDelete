@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using OldBackupsAutoDelete.Contants;
 using OldBackupsAutoDelete.Logs;
 using System;
 using System.Collections.Generic;
@@ -22,14 +23,25 @@ namespace OldBackupsAutoDelete
                 try
                 {
                     await Logger.SaveInformationToLog($"Worker - usuwanie plików i katalogów");
-                    await SearchAndDeleteFiles.DeleteHostingerBackups();
+                    foreach (string path in PathsList.PathList)
+                    {
+                        try
+                        {
+                            await Logger.SaveInformationToLog($"Worker -przetwarzanie {path}");
+                            await SearchAndDeleteFiles.DeleteBackups(path);
+                        }
+                        catch (Exception ex) 
+                        {
+                            await Logger.SaveInformationToLog($"Worker - pętla while - {ex.Message}");
+                        }
+                    }
                     await Logger.SaveInformationToLog($"Worker - pliki i katalogi usunięte");
                 }
                 catch (Exception ex) 
                 {
-                    await Logger.SaveInformationToLog($"Worker - pętla while - {ex.Message}");
+                    await Logger.SaveInformationToLog($"Worker - pętla foreach - {ex.Message}");
                 }
-
+                await Task.Delay(TimeSpan.FromMinutes(61));
             }
         }
     }
